@@ -69,6 +69,9 @@ public class PoEItemAnalyzer implements Runnable
 			level = Integer.parseInt(s1);
 		}
 
+		// Decide on item type
+		String type = this.digForType(item);
+
 		// Grab sockets
 		Pattern pattern2 = Pattern.compile("\nSockets: .*\n");
 		Matcher matcher2 = pattern2.matcher(item);
@@ -88,7 +91,7 @@ public class PoEItemAnalyzer implements Runnable
 			ItemProperties socketprops = map.get(this.buildMapKey("Sockets", level, "null"));
 			if (socketprops == null)
 			{
-				socketprops = new ItemProperties("Sockets", level, "null", sockets);
+				socketprops = new ItemProperties("Sockets", level, "null", sockets, type);
 				this.properties.add(socketprops);
 				this.map.put(socketprops.buildMapKey(), socketprops);
 			}
@@ -111,8 +114,6 @@ public class PoEItemAnalyzer implements Runnable
 			level = 0;
 		}
 
-		// todo: Decide on item type
-
 		Scanner scanner = new Scanner(item);
 
 		while (scanner.hasNextLine())
@@ -128,7 +129,7 @@ public class PoEItemAnalyzer implements Runnable
 			}
 			if (!goAway)
 			{
-				int rating = this.analyzeLine(line, level);
+				int rating = this.analyzeLine(line, level, type);
 				if (rating > 0)
 				{
 					display.addInfo(line, rating);
@@ -139,7 +140,23 @@ public class PoEItemAnalyzer implements Runnable
 		return true;
 	}
 
-	private int analyzeLine(String line, int level)
+	private String digForType(String item)
+	{
+		for (String type : types.keySet())
+		{
+			List<String> subtypeList = types.get(type);
+			for (String subtype : subtypeList)
+			{
+				if (item.contains(subtype))
+				{
+					return type;
+				}
+			}
+		}
+		return "other";
+	}
+
+	private int analyzeLine(String line, int level, String type)
 	{
 		int returnvalue = -1;
 
@@ -174,7 +191,7 @@ public class PoEItemAnalyzer implements Runnable
 
 					if (minProperties == null)
 					{
-						minProperties = new ItemProperties(id, level, "min", range.getKey());
+						minProperties = new ItemProperties(id, level, "min", range.getKey(), type);
 						this.properties.add(minProperties);
 						this.map.put(minProperties.buildMapKey(), minProperties);
 					}
@@ -191,7 +208,7 @@ public class PoEItemAnalyzer implements Runnable
 
 					if (maxProperties == null)
 					{
-						maxProperties = new ItemProperties(id, level, "max", range.getValue());
+						maxProperties = new ItemProperties(id, level, "max", range.getValue(), type);
 						this.properties.add(maxProperties);
 						this.map.put(maxProperties.buildMapKey(), maxProperties);
 
@@ -219,7 +236,8 @@ public class PoEItemAnalyzer implements Runnable
 					int storedValue = 0;
 					if (properties == null)
 					{
-						ItemProperties itemProperties = new ItemProperties(id, level, "null", retardedValue);
+						ItemProperties itemProperties = new ItemProperties(id, level, "null", retardedValue,
+								type);
 						this.properties.add(itemProperties);
 						this.map.put(itemProperties.buildMapKey(), itemProperties);
 						returnvalue = 1;
@@ -242,7 +260,7 @@ public class PoEItemAnalyzer implements Runnable
 
 					if (properties == null)
 					{
-						ItemProperties itemProperties = new ItemProperties(id, level, "null", value);
+						ItemProperties itemProperties = new ItemProperties(id, level, "null", value, type);
 						this.properties.add(itemProperties);
 						this.map.put(itemProperties.buildMapKey(), itemProperties);
 						returnvalue = 1;
@@ -489,10 +507,12 @@ public class PoEItemAnalyzer implements Runnable
 		StringTokenizer tokenizer = new StringTokenizer(rawData, ":");
 		String id = tokenizer.nextToken();
 		int level = Integer.parseInt(tokenizer.nextToken());
+		String type = tokenizer.nextToken();
 		String context = tokenizer.nextToken();
 		int value = Integer.parseInt(tokenizer.nextToken());
 
-		return new ItemProperties(id, level, context, value);
+
+		return new ItemProperties(id, level, context, value, type);
 	}
 
 	public static boolean              running    = true;
