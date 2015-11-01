@@ -52,6 +52,8 @@ public class PoEItemAnalyzer implements Runnable
 	private boolean analyzeItem(String item)
 	{
 		int level = -1;
+		// Clear display before outputting the new stuff
+		display.resetLabels();
 
 		// Grab level
 		Pattern pattern1 = Pattern.compile("\nLevel: [0-9]+");
@@ -64,10 +66,7 @@ public class PoEItemAnalyzer implements Runnable
 
 			String s1 = strokenizer.nextToken();
 			s1 = strokenizer.nextToken();
-
 			level = Integer.parseInt(s1);
-
-//			System.out.println(level);
 		}
 
 		// Grab sockets
@@ -275,7 +274,8 @@ public class PoEItemAnalyzer implements Runnable
 		for (int i = 0; i <= level; i++)
 		{
 			ItemProperties props = map.get(this.buildMapKey(id, i, context));
-			if (props != null){
+			if (props != null)
+			{
 				storedValue = Math.max(storedValue, props.value);
 			}
 		}

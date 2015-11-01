@@ -91,6 +91,15 @@ public class MainForm
 		c++;
 	}
 
+	public void resetLabels()
+	{
+		for (Integer i : labels.keySet())
+		{
+			this.labels.get(i).setText("Label");
+			this.panels.get(i).setBackground(null);
+		}
+	}
+
 	private int c = 1;
 
 	private JPanel attributeIndicator1;
