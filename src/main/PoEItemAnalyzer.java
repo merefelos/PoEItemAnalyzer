@@ -16,7 +16,7 @@ public class PoEItemAnalyzer implements Runnable
 	{
 		this.display = display;
 		this.readFromFile();
-//		this.patterns.add("Level: .*");
+		this.readTypesFromFile();
 		this.patterns.add(".*[0-9]+.*");
 	}
 
@@ -110,6 +110,8 @@ public class PoEItemAnalyzer implements Runnable
 		{
 			level = 0;
 		}
+
+		// todo: Decide on item type
 
 		Scanner scanner = new Scanner(item);
 
@@ -424,6 +426,44 @@ public class PoEItemAnalyzer implements Runnable
 
 	}
 
+	private void readTypesFromFile()
+	{
+		try
+		{
+			File dir = new File("types");
+			File[] typeFiles = dir.listFiles();
+			for (int i = 0; i < typeFiles.length; i++)
+			{
+				if (typeFiles[i].isFile())
+				{
+					StringTokenizer tokenizer = new StringTokenizer(typeFiles[i].getName(), ".");
+					String typeName = tokenizer.nextToken();
+					Scanner fileScanner = new Scanner(typeFiles[i]);
+					List<String> subtypes = new ArrayList<String>();
+					while (fileScanner.hasNextLine())
+					{
+						String line = fileScanner.nextLine();
+						line = line.trim();
+						if (line.length() > 0)
+						{
+							subtypes.add(line);
+						}
+					}
+					this.types.put(typeName, subtypes);
+					fileScanner.close();
+				}
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	private void putIntoFile()
 	{
 		try
@@ -462,8 +502,9 @@ public class PoEItemAnalyzer implements Runnable
 	private int c = 0;
 
 	// +[0-9]*%jabadajabada
-	List<String> patterns = new ArrayList<String>(32);
-	Set<String>  garbage  = new HashSet<String>();
+	List<String>                  patterns = new ArrayList<String>(32);
+	Set<String>                   garbage  = new HashSet<String>();
+	HashMap<String, List<String>> types    = new HashMap<String, List<String>>(64);
 
 	private enum Skippable
 	{
