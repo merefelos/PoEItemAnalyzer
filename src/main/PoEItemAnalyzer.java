@@ -103,6 +103,13 @@ public class PoEItemAnalyzer implements Runnable
 			display.addInfo("Sockets", sockets);
 		}
 
+		// If there are no requirements, level is 0
+		Pattern pattern3 = Pattern.compile("\nRequirements:.*\n");
+		Matcher matcher3 = pattern3.matcher(item);
+		if (!matcher3.find())
+		{
+			level = 0;
+		}
 
 		Scanner scanner = new Scanner(item);
 
