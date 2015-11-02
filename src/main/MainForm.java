@@ -51,7 +51,6 @@ public class MainForm
 	public void setRawText(String text)
 	{
 		this.rawText.setText(text);
-		this.rawText.setWrapStyleWord(true);
 		c = 1;
 	}
 
