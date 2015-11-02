@@ -200,6 +200,7 @@
         </constraints>
         <properties>
           <editable value="false"/>
+          <lineWrap value="true"/>
         </properties>
       </component>
     </children>
