@@ -88,7 +88,7 @@ public class PoEItemAnalyzer implements Runnable
 			s1 = s1.replaceAll("[^A-Z]", "");
 			sockets = s1.length();
 
-			ItemProperties socketprops = map.get(this.buildMapKey("Sockets", level, "null"));
+			ItemProperties socketprops = map.get(this.buildMapKey("Sockets", level, "null", type));
 			if (socketprops == null)
 			{
 				socketprops = new ItemProperties("Sockets", level, "null", sockets, type);
@@ -103,7 +103,9 @@ public class PoEItemAnalyzer implements Runnable
 				}
 			}
 
-			display.addInfo("Sockets", sockets);
+			int rating = this.analyzeRating("Sockets", level, "null", sockets, type);
+
+			display.addInfo("Sockets", rating);
 		}
 
 		// If there are no requirements, level is 0
@@ -184,8 +186,8 @@ public class PoEItemAnalyzer implements Runnable
 
 				if (range != null)
 				{
-					ItemProperties minProperties = map.get(this.buildMapKey(id, level, "min"));
-					ItemProperties maxProperties = map.get(this.buildMapKey(id, level, "max"));
+					ItemProperties minProperties = map.get(this.buildMapKey(id, level, "min", type));
+					ItemProperties maxProperties = map.get(this.buildMapKey(id, level, "max", type));
 					int storedMin = 0;
 					int storedMax = 0;
 
@@ -223,11 +225,11 @@ public class PoEItemAnalyzer implements Runnable
 						}
 					}
 					returnvalue = this.analyzeRating(minProperties.value,
-							maxProperties.value, id, level);
+							maxProperties.value, id, level, type);
 				}
 				else if (dValue != -1)
 				{
-					ItemProperties properties = this.map.get(this.buildMapKey(id, level, "null"));
+					ItemProperties properties = this.map.get(this.buildMapKey(id, level, "null", type));
 
 					// scaling up the doubles
 					dValue *= 100;
@@ -249,13 +251,13 @@ public class PoEItemAnalyzer implements Runnable
 						{
 							properties.value = retardedValue;
 						}
-						returnvalue = this.analyzeRating(id, storedValue, "null", retardedValue);
+						returnvalue = this.analyzeRating(id, storedValue, "null", retardedValue, type);
 					}
 
 				}
 				else if (value != -1)
 				{
-					ItemProperties properties = this.map.get(this.buildMapKey(id, level, "null"));
+					ItemProperties properties = this.map.get(this.buildMapKey(id, level, "null", type));
 					int storedValue = 0;
 
 					if (properties == null)
@@ -272,7 +274,7 @@ public class PoEItemAnalyzer implements Runnable
 						{
 							properties.value = value;
 						}
-						returnvalue = this.analyzeRating(id, level, "null", value);
+						returnvalue = this.analyzeRating(id, level, "null", value, type);
 					}
 
 				}
@@ -286,21 +288,21 @@ public class PoEItemAnalyzer implements Runnable
 		return returnvalue;
 	}
 
-	private int analyzeRating(int newMin, int newMax, String id, int level)
+	private int analyzeRating(int newMin, int newMax, String id, int level, String type)
 	{
-		int minRating = this.analyzeRating(id, level, "min", newMin);
-		int maxRating = this.analyzeRating(id, level, "max", newMax);
+		int minRating = this.analyzeRating(id, level, "min", newMin, type);
+		int maxRating = this.analyzeRating(id, level, "max", newMax, type);
 
 		return Math.max(minRating, maxRating);
 	}
 
-	private int analyzeRating(String id, int level, String context, int newValue)
+	private int analyzeRating(String id, int level, String context, int newValue, String type)
 	{
 		int storedValue = -1;
 		int maxValue = -1;
 		for (int i = 0; i <= level; i++)
 		{
-			ItemProperties props = map.get(this.buildMapKey(id, i, context));
+			ItemProperties props = map.get(this.buildMapKey(id, i, context, type));
 			if (props != null)
 			{
 				storedValue = Math.max(storedValue, props.value);
@@ -331,9 +333,9 @@ public class PoEItemAnalyzer implements Runnable
 		return 1;
 	}
 
-	private String buildMapKey(String id, int level, String context)
+	private String buildMapKey(String id, int level, String context, String type)
 	{
-		return id + ":" + level + ":" + context;
+		return id + ":" + level + ":" + type + ":" + context;
 	}
 
 	private Pair<Integer, Integer> digForRange(String line)
