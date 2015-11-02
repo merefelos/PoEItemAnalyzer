@@ -16,13 +16,23 @@ public class ClipBoarder implements Runnable
 	{
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Clipboard clipboard = toolkit.getSystemClipboard();
-
 		while (ClipBoarder.running)
 		{
 			String result = null;
 			try
 			{
 				result = (String) clipboard.getData(DataFlavor.stringFlavor);
+			}
+			catch (IllegalStateException e){
+				e.printStackTrace();
+				try
+				{
+					Thread.sleep(20);
+				}
+				catch (InterruptedException e1)
+				{
+					e1.printStackTrace();
+				}
 			}
 			catch (UnsupportedFlavorException e)
 			{
@@ -52,7 +62,7 @@ public class ClipBoarder implements Runnable
 
 			try
 			{
-				Thread.sleep(50);
+				Thread.sleep(100);
 			}
 			catch (InterruptedException e)
 			{
