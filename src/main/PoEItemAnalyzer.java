@@ -52,8 +52,17 @@ public class PoEItemAnalyzer implements Runnable
 	private boolean analyzeItem(String item)
 	{
 		int level = -1;
+		this.isUnique = false;
 		// Clear display before outputting the new stuff
 		display.resetLabels();
+
+		// Check uniqueness
+		Pattern pattern4 = Pattern.compile("Rarity: Unique\n");
+		Matcher matcher4 = pattern4.matcher(item);
+		if (matcher4.find())
+		{
+			this.isUnique = true;
+		}
 
 		// Grab level
 		Pattern pattern1 = Pattern.compile("\nLevel: [0-9]+");
@@ -92,12 +101,15 @@ public class PoEItemAnalyzer implements Runnable
 			if (socketprops == null)
 			{
 				socketprops = new ItemProperties("Sockets", level, "null", sockets, type);
-				this.properties.add(socketprops);
-				this.map.put(socketprops.buildMapKey(), socketprops);
+				if (!this.isUnique)
+				{
+					this.properties.add(socketprops);
+					this.map.put(socketprops.buildMapKey(), socketprops);
+				}
 			}
 			else
 			{
-				if (socketprops.value < sockets)
+				if (socketprops.value < sockets && !this.isUnique)
 				{
 					socketprops.value = sockets;
 				}
@@ -194,8 +206,11 @@ public class PoEItemAnalyzer implements Runnable
 					if (minProperties == null)
 					{
 						minProperties = new ItemProperties(id, level, "min", range.getKey(), type);
-						this.properties.add(minProperties);
-						this.map.put(minProperties.buildMapKey(), minProperties);
+						if (!this.isUnique)
+						{
+							this.properties.add(minProperties);
+							this.map.put(minProperties.buildMapKey(), minProperties);
+						}
 					}
 					else
 					{
@@ -211,9 +226,11 @@ public class PoEItemAnalyzer implements Runnable
 					if (maxProperties == null)
 					{
 						maxProperties = new ItemProperties(id, level, "max", range.getValue(), type);
-						this.properties.add(maxProperties);
-						this.map.put(maxProperties.buildMapKey(), maxProperties);
-
+						if (!this.isUnique)
+						{
+							this.properties.add(maxProperties);
+							this.map.put(maxProperties.buildMapKey(), maxProperties);
+						}
 					}
 					else
 					{
@@ -240,14 +257,17 @@ public class PoEItemAnalyzer implements Runnable
 					{
 						ItemProperties itemProperties = new ItemProperties(id, level, "null", retardedValue,
 								type);
-						this.properties.add(itemProperties);
-						this.map.put(itemProperties.buildMapKey(), itemProperties);
+						if (!this.isUnique)
+						{
+							this.properties.add(itemProperties);
+							this.map.put(itemProperties.buildMapKey(), itemProperties);
+						}
 						returnvalue = 1;
 					}
 					else
 					{
 						storedValue = properties.value;
-						if (properties.value < retardedValue)
+						if (properties.value < retardedValue && !this.isUnique)
 						{
 							properties.value = retardedValue;
 						}
@@ -263,25 +283,23 @@ public class PoEItemAnalyzer implements Runnable
 					if (properties == null)
 					{
 						ItemProperties itemProperties = new ItemProperties(id, level, "null", value, type);
-						this.properties.add(itemProperties);
-						this.map.put(itemProperties.buildMapKey(), itemProperties);
+						if (!this.isUnique)
+						{
+							this.properties.add(itemProperties);
+							this.map.put(itemProperties.buildMapKey(), itemProperties);
+						}
 						returnvalue = 1;
 					}
 					else
 					{
 						storedValue = properties.value;
-						if (properties.value < value)
+						if (properties.value < value && !this.isUnique)
 						{
 							properties.value = value;
 						}
 						returnvalue = this.analyzeRating(id, level, "null", value, type);
 					}
-
 				}
-
-//				String v = "" + value + " " + dValue + " " + range;
-
-//				System.out.println(id + " -> " + v);
 			}
 		}
 
@@ -521,7 +539,8 @@ public class PoEItemAnalyzer implements Runnable
 	public static Queue<String>        queue      = new LinkedList<String>();
 	public        List<ItemProperties> properties = new ArrayList<ItemProperties>(64);
 	Map<String, ItemProperties> map = new HashMap<String, ItemProperties>();
-	private int c = 0;
+	private int     c        = 0;
+	private boolean isUnique = false;
 
 	// +[0-9]*%jabadajabada
 	List<String>                  patterns = new ArrayList<String>(32);
