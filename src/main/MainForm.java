@@ -35,6 +35,13 @@ public class MainForm
 		this.panels.put(7, this.attributeIndicator7);
 		this.panels.put(8, this.attributeIndicator8);
 		this.panels.put(9, this.attributeIndicator9);
+		this.panels.put(10, this.attributeIndicator10);
+		this.panels.put(11, this.attributeIndicator11);
+		this.panels.put(12, this.attributeIndicator12);
+		this.panels.put(13, this.attributeIndicator13);
+		this.panels.put(14, this.attributeIndicator14);
+		this.panels.put(15, this.attributeIndicator15);
+		this.panels.put(16, this.attributeIndicator16);
 
 
 		this.labels.put(1, this.label1);
@@ -46,6 +53,13 @@ public class MainForm
 		this.labels.put(7, this.label7);
 		this.labels.put(8, this.label8);
 		this.labels.put(9, this.label9);
+		this.labels.put(10, this.label10);
+		this.labels.put(11, this.label11);
+		this.labels.put(12, this.label12);
+		this.labels.put(13, this.label13);
+		this.labels.put(14, this.label14);
+		this.labels.put(15, this.label15);
+		this.labels.put(16, this.label16);
 	}
 
 	public void setRawText(String text)
@@ -57,7 +71,7 @@ public class MainForm
 
 	public void addInfo(PropertyRater propertyRater, String originalText)
 	{
-		if (c < 10)
+		if (c < 17)
 		{
 			this.labels.get(c).setText(propertyRater.formattedPercentage() + " " + originalText);
 
@@ -71,7 +85,7 @@ public class MainForm
 	{
 		for (Integer i : labels.keySet())
 		{
-			this.labels.get(i).setText("Label");
+			this.labels.get(i).setText("");
 			this.panels.get(i).setBackground(null);
 		}
 	}
@@ -117,6 +131,35 @@ public class MainForm
 	public JPanel main;
 
 	private JTextArea rawText;
+
+	private JPanel attributeIndicator10;
+
+	private JPanel attributeIndicator11;
+
+	private JPanel attributeIndicator12;
+
+	private JPanel attributeIndicator13;
+
+	private JPanel attributeIndicator14;
+
+	private JPanel attributeIndicator15;
+
+	private JPanel attributeIndicator16;
+
+	private JLabel label10;
+
+	private JLabel label11;
+
+	private JLabel label12;
+
+	private JLabel label13;
+
+	private JLabel label14;
+
+	private JLabel label15;
+
+	private JLabel label16;
+
 	public Map<Integer, JPanel> panels = new HashMap<Integer, JPanel>();
 	public Map<Integer, JLabel> labels = new HashMap<Integer, JLabel>();
 }
