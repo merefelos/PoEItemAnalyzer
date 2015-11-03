@@ -115,9 +115,12 @@ public class PoEItemAnalyzer implements Runnable
 				}
 			}
 
-			int rating = this.analyzeRating("Sockets", level, "null", sockets, type);
+			PropertyRater rating = this.analyzeRating("Sockets", level, "null", sockets, type);
 
-			display.addInfo("Sockets", rating);
+			if (rating != null)
+			{
+				display.addInfo(rating, "Sockets");
+			}
 		}
 
 		// If there are no requirements, level is 0
@@ -143,10 +146,11 @@ public class PoEItemAnalyzer implements Runnable
 			}
 			if (!goAway)
 			{
-				int rating = this.analyzeLine(line, level, type);
-				if (rating > 0)
+				PropertyRater rating = this.analyzeLine(line, level, type);
+
+				if (rating != null)
 				{
-					display.addInfo(line, rating);
+					display.addInfo(rating, line);
 				}
 			}
 		}
@@ -170,9 +174,9 @@ public class PoEItemAnalyzer implements Runnable
 		return "other";
 	}
 
-	private int analyzeLine(String line, int level, String type)
+	private PropertyRater analyzeLine(String line, int level, String type)
 	{
-		int returnvalue = -1;
+		PropertyRater returnRater = null;
 
 		if (!garbage.contains(line))
 		{
@@ -241,7 +245,8 @@ public class PoEItemAnalyzer implements Runnable
 							maxProperties.value = v;
 						}
 					}
-					returnvalue = this.analyzeRating(minProperties.value,
+
+					 returnRater = this.analyzeRating(minProperties.value,
 							maxProperties.value, id, level, type);
 				}
 				else if (dValue != -1)
@@ -257,12 +262,14 @@ public class PoEItemAnalyzer implements Runnable
 					{
 						ItemProperties itemProperties = new ItemProperties(id, level, "null", retardedValue,
 								type);
+						
 						if (!this.isUnique)
 						{
 							this.properties.add(itemProperties);
 							this.map.put(itemProperties.buildMapKey(), itemProperties);
 						}
-						returnvalue = 1;
+						
+						returnRater = new PropertyRater(100, 100);
 					}
 					else
 					{
@@ -271,7 +278,8 @@ public class PoEItemAnalyzer implements Runnable
 						{
 							properties.value = retardedValue;
 						}
-						returnvalue = this.analyzeRating(id, storedValue, "null", retardedValue, type);
+
+						returnRater = this.analyzeRating(id, storedValue, "null", retardedValue, type);
 					}
 
 				}
@@ -283,12 +291,14 @@ public class PoEItemAnalyzer implements Runnable
 					if (properties == null)
 					{
 						ItemProperties itemProperties = new ItemProperties(id, level, "null", value, type);
+						
 						if (!this.isUnique)
 						{
 							this.properties.add(itemProperties);
 							this.map.put(itemProperties.buildMapKey(), itemProperties);
 						}
-						returnvalue = 1;
+						
+						returnRater = new PropertyRater(100, 100);
 					}
 					else
 					{
@@ -297,26 +307,37 @@ public class PoEItemAnalyzer implements Runnable
 						{
 							properties.value = value;
 						}
-						returnvalue = this.analyzeRating(id, level, "null", value, type);
+						returnRater = this.analyzeRating(id, level, "null", value, type);
 					}
 				}
 			}
 		}
 
-		return returnvalue;
+		return returnRater;
 	}
 
-	private int analyzeRating(int newMin, int newMax, String id, int level, String type)
+	private PropertyRater analyzeRating(int newMin, int newMax, String id, int level, String type)
 	{
-		int minRating = this.analyzeRating(id, level, "min", newMin, type);
-		int maxRating = this.analyzeRating(id, level, "max", newMax, type);
+		PropertyRater minRating = this.analyzeRating(id, level, "min", newMin, type);
+		PropertyRater maxRating = this.analyzeRating(id, level, "max", newMax, type);
 
-		return Math.max(minRating, maxRating);
+		PropertyRater rater;
+
+		if (minRating.getPercentage() > maxRating.getPercentage())
+		{
+			rater = minRating;
+		}
+		else
+		{
+			rater = maxRating;
+		}
+
+		return rater;
 	}
 
-	private int analyzeRating(String id, int level, String context, int newValue, String type)
+	private PropertyRater analyzeRating(String id, int level, String context, int newValue, String type)
 	{
-		int storedValue = -1;
+		int storedValue = 0;
 		int maxValue = -1;
 		for (int i = 0; i <= level; i++)
 		{
@@ -327,28 +348,7 @@ public class PoEItemAnalyzer implements Runnable
 			}
 		}
 
-		int allWeKnow = storedValue - newValue;
-		if (allWeKnow <= 0)
-		{
-			return 1;
-		}
-		else
-		{
-			int deliminator = 0;
-			int divisor = 2;
-			int rating = 6;
-			for (int i = 0; i < 4; i++)
-			{
-				deliminator = deliminator + storedValue / divisor;
-				rating--;
-				divisor *= 2;
-				if (newValue <= deliminator)
-				{
-					return rating;
-				}
-			}
-		}
-		return 1;
+		return new PropertyRater(storedValue, newValue);
 	}
 
 	private String buildMapKey(String id, int level, String context, String type)

@@ -55,37 +55,13 @@ public class MainForm
 	}
 
 
-	public void addInfo(String label, int rating)
+	public void addInfo(PropertyRater propertyRater, String originalText)
 	{
 		if (c < 10)
 		{
-			this.labels.get(c).setText(label);
+			this.labels.get(c).setText(propertyRater.formattedPercentage() + " " + originalText);
 
-			Color color = Color.PINK;
-
-			switch (rating)
-			{
-				case -1:
-					color = Color.gray;
-					break;
-				case 1:
-					color = Color.GREEN;
-					break;
-				case 2:
-					color = new Color(100, 200, 20);
-					break;
-				case 3:
-					color = Color.yellow;
-					break;
-				case 4:
-					color = Color.orange;
-					break;
-				case 5:
-					color = Color.red;
-					break;
-			}
-
-			this.panels.get(c).setBackground(color);
+			this.panels.get(c).setBackground(propertyRater.calculateColor());
 		}
 
 		c++;
