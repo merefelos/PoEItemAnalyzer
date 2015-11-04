@@ -14,9 +14,11 @@ public class PoEItemAnalyzer implements Runnable
 {
 	public PoEItemAnalyzer(MainForm display)
 	{
+		this.fileManager = new FileManager();
 		this.display = display;
-		this.readFromFile();
-		this.readTypesFromFile();
+		fileManager.readFromFile(new File("properties.cnf"), this.properties);
+		this.populateMap();
+		this.types = fileManager.readTypesFromFile();
 		this.patterns.add(".*[0-9]+.*");
 	}
 
@@ -44,7 +46,7 @@ public class PoEItemAnalyzer implements Runnable
 			if (c == 10)
 			{
 				this.c = 0;
-				this.putIntoFile();
+				fileManager.putIntoFile(new File("properties.cnf"), this.properties);
 			}
 		}
 	}
@@ -246,7 +248,7 @@ public class PoEItemAnalyzer implements Runnable
 						}
 					}
 
-					 returnRater = this.analyzeRating(minProperties.value,
+					returnRater = this.analyzeRating(minProperties.value,
 							maxProperties.value, id, level, type);
 				}
 				else if (dValue != -1)
@@ -262,13 +264,13 @@ public class PoEItemAnalyzer implements Runnable
 					{
 						ItemProperties itemProperties = new ItemProperties(id, level, "null", retardedValue,
 								type);
-						
+
 						if (!this.isUnique)
 						{
 							this.properties.add(itemProperties);
 							this.map.put(itemProperties.buildMapKey(), itemProperties);
 						}
-						
+
 						returnRater = new PropertyRater(100, 100);
 					}
 					else
@@ -291,13 +293,13 @@ public class PoEItemAnalyzer implements Runnable
 					if (properties == null)
 					{
 						ItemProperties itemProperties = new ItemProperties(id, level, "null", value, type);
-						
+
 						if (!this.isUnique)
 						{
 							this.properties.add(itemProperties);
 							this.map.put(itemProperties.buildMapKey(), itemProperties);
 						}
-						
+
 						returnRater = new PropertyRater(100, 100);
 					}
 					else
@@ -335,7 +337,8 @@ public class PoEItemAnalyzer implements Runnable
 		return rater;
 	}
 
-	private PropertyRater analyzeRating(String id, int level, String context, int newValue, String type)
+	private PropertyRater analyzeRating(String id, int level, String context, int newValue, String
+			type)
 	{
 		int storedValue = 0;
 		int maxValue = -1;
@@ -430,115 +433,20 @@ public class PoEItemAnalyzer implements Runnable
 		return a;
 	}
 
-	private void readFromFile()
+	private void populateMap()
 	{
-
-		try
+		for (ItemProperties property : this.properties)
 		{
-			File file = new File("properties.cnf");
-			if (!file.canRead())
-			{
-				FileWriter fileWriter = new FileWriter(new File("properties.cnf"));
-				fileWriter.close();
-				file = new File("properties.cnf");
-			}
-			Scanner fileScanner = new Scanner(file);
-			while (fileScanner.hasNextLine())
-			{
-				properties.add(parseProperties(fileScanner.nextLine()));
-			}
-
-			for (ItemProperties property : properties)
-			{
-				map.put(property.buildMapKey(), property);
-			}
+			this.map.put(property.buildMapKey(), property);
 		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-
-	}
-
-	private void readTypesFromFile()
-	{
-		try
-		{
-			File dir = new File("types");
-			File[] typeFiles = dir.listFiles();
-			for (int i = 0; i < typeFiles.length; i++)
-			{
-				if (typeFiles[i].isFile())
-				{
-					StringTokenizer tokenizer = new StringTokenizer(typeFiles[i].getName(), ".");
-					String typeName = tokenizer.nextToken();
-					Scanner fileScanner = new Scanner(typeFiles[i]);
-					List<String> subtypes = new ArrayList<String>();
-					while (fileScanner.hasNextLine())
-					{
-						String line = fileScanner.nextLine();
-						line = line.trim();
-						if (line.length() > 0)
-						{
-							subtypes.add(line);
-						}
-					}
-					this.types.put(typeName, subtypes);
-					fileScanner.close();
-				}
-			}
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	private void putIntoFile()
-	{
-		try
-		{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(("properties.cnf")));
-
-			for (ItemProperties property : properties)
-			{
-				writer.write(property.toString());
-				writer.newLine();
-			}
-
-			writer.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	private ItemProperties parseProperties(String rawData)
-	{
-		StringTokenizer tokenizer = new StringTokenizer(rawData, ":");
-		String id = tokenizer.nextToken();
-		int level = Integer.parseInt(tokenizer.nextToken());
-		String type = tokenizer.nextToken();
-		String context = tokenizer.nextToken();
-		int value = Integer.parseInt(tokenizer.nextToken());
-
-
-		return new ItemProperties(id, level, context, value, type);
 	}
 
 	public static boolean              running    = true;
 	public static Queue<String>        queue      = new LinkedList<String>();
 	public        List<ItemProperties> properties = new ArrayList<ItemProperties>(64);
 	Map<String, ItemProperties> map = new HashMap<String, ItemProperties>();
+	public FileManager fileManager;
+
 	private int     c        = 0;
 	private boolean isUnique = false;
 

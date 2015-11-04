@@ -4,6 +4,7 @@ package main;
 
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,16 +13,14 @@ import javax.swing.*;
 
 public class MainForm
 {
-	public static void main(String[] args)
+	public MainForm(JFrame frame)
 	{
-		JFrame frame = new JFrame("A Thing");
-		MainForm mainForm = new MainForm();
+		this.mainFrame = frame;
+	}
 
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setSize(400, 400);
-		frame.setContentPane(mainForm.main);
-
-		frame.setVisible(true);
+	public void setAnalyzer(PoEItemAnalyzer analyzer)
+	{
+		this.analyzer = analyzer;
 	}
 
 	public void initArrays()
@@ -62,6 +61,17 @@ public class MainForm
 		this.labels.put(16, this.label16);
 	}
 
+	public JMenuBar initMenu()
+	{
+		this.menuBar = new JMenuBar();
+		this.menu = new JMenu("Import Tools");
+		this.menuBar.add(menu);
+		this.menuItem = new JMenuItem("Import & Merge");
+		this.menu.add(menuItem);
+		this.menuItem.addActionListener(new MenuListener(this.mainFrame, this.analyzer));
+		return this.menuBar;
+	}
+
 	public void setRawText(String text)
 	{
 		this.rawText.setText(text);
@@ -83,7 +93,7 @@ public class MainForm
 
 	public void resetLabels()
 	{
-		for (Integer i : labels.keySet())
+		for (Integer i : this.labels.keySet())
 		{
 			this.labels.get(i).setText("");
 			this.panels.get(i).setBackground(null);
@@ -130,6 +140,11 @@ public class MainForm
 
 	public JPanel main;
 
+	public JFrame    mainFrame;
+	public JMenuBar  menuBar;
+	public JMenu     menu;
+	public JMenuItem menuItem;
+
 	private JTextArea rawText;
 
 	private JPanel attributeIndicator10;
@@ -162,4 +177,7 @@ public class MainForm
 
 	public Map<Integer, JPanel> panels = new HashMap<Integer, JPanel>();
 	public Map<Integer, JLabel> labels = new HashMap<Integer, JLabel>();
+
+	private PoEItemAnalyzer analyzer;
+
 }
