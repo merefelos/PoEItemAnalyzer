@@ -3,7 +3,14 @@ package main;
 
 import javax.swing.*;
 
-
+/*
+TODO: Low level socket problem
+TODO: Configurable property list (hide unwanted) - ID-based
+TODO: Create/populate ID - handsome ID file (for display in the configuration list)
+TODO: Configure general (subcategories disabled) vs. categorized view
+TODO: Save subcategory property records as separate lines (e.g. an armor item would have two
+records - one for "armor" and one for "energetic evasion armor")
+ */
 public class Launcher
 {
 	public static void main(String[] args)
