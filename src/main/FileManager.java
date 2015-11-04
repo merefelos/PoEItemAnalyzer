@@ -5,6 +5,7 @@ import java.util.*;
 
 /**
  * Created by Anna on 04/11/2015.
+ * todo: http://alvinalexander.com/blog/post/java/read-text-file-from-jar-file
  */
 public class FileManager
 {
@@ -85,10 +86,6 @@ public class FileManager
 			}
 		}
 		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
