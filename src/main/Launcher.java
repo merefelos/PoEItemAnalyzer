@@ -10,6 +10,8 @@ TODO: Create/populate ID - handsome ID file (for display in the configuration li
 TODO: Configure general (subcategories disabled) vs. categorized view
 TODO: Save subcategory property records as separate lines (e.g. an armor item would have two
 records - one for "armor" and one for "energetic evasion armor")
+TODO: Show property list (from menu), with sorting/filtering options, allow edit from config window
+TODO: Configurable threshold to show/hide properties with a certain rating
  */
 public class Launcher
 {
