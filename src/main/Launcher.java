@@ -3,15 +3,17 @@ package main;
 
 import javax.swing.*;
 
-/*
-TODO: Low level socket problem
-TODO: Configurable property list (hide unwanted) - ID-based
-TODO: Create/populate ID - handsome ID file (for display in the configuration list)
-TODO: Configure general (subcategories disabled) vs. categorized view
-TODO: Save subcategory property records as separate lines (e.g. an armor item would have two
-records - one for "armor" and one for "energetic evasion armor")
-TODO: Show property list (from menu), with sorting/filtering options, allow edit from config window
-TODO: Configurable threshold to show/hide properties with a certain rating
+/**
+ * TODO: Low level socket problem
+ * TODO: Configurable property list (hide unwanted) - ID-based
+ * TODO: Create/populate ID - handsome ID file (for display in the configuration list)
+ * TODO: Configure general (subcategories disabled) vs. categorized view
+ * TODO: Save subcategory property records as separate lines (e.g. an armor item would have two
+ * records - one for "armor" and one for "energetic evasion armor")
+ * TODO: Show property list (from menu), with sorting/filtering options, allow edit from config
+ * window
+ * TODO: Configurable threshold to show/hide properties with a certain rating
+ * TODO: Enable collecting gem properties
  */
 public class Launcher
 {
