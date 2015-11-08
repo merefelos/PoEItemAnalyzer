@@ -9,9 +9,15 @@ import javax.swing.*;
  * TODO: Configure general (subcategories disabled) vs. categorized view
  * TODO: Save subcategory property records as separate lines (e.g. an armor item would have two
  * records - one for "armor" and one for "energetic evasion armor")
- * TODO: Update property list with sorting/filtering options
+ * TODO: Update property list with sorting/filtering options, include:
+ *        select all/none
+ *        show only checked
+ *        filter/search by part of name (dropdown/combobox/autocomplete/keywords) (i.e. "check all
+ *        containing...")
+ * CONSIDER: turn configs into a table, to list also type etc.
  * TODO: Configurable threshold to show/hide properties with a certain rating
  * TODO: Enable collecting gem properties
+ * TODO: Implement implicit variable recognition
  */
 public class Launcher
 {
