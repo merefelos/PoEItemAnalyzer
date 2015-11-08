@@ -1,4 +1,8 @@
-package main;
+package main.listeners;
+
+import main.FileManager;
+import main.ItemProperties;
+import main.PoEItemAnalyzer;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -12,9 +16,9 @@ import java.util.List;
 /**
  * Created by Anna on 04/11/2015.
  */
-public class MenuListener implements ActionListener, ItemListener
+public class MenuListenerImport implements ActionListener, ItemListener
 {
-	public MenuListener(JFrame mainFrame, PoEItemAnalyzer analyzer)
+	public MenuListenerImport(JFrame mainFrame, PoEItemAnalyzer analyzer)
 	{
 		this.mainFrame = mainFrame;
 		this.analyzer = analyzer;
@@ -35,17 +39,17 @@ public class MenuListener implements ActionListener, ItemListener
 
 			for (ItemProperties itemProperties : itemPropertiesList)
 			{
-				ItemProperties property = this.analyzer.map.get(itemProperties.buildMapKey());
+				ItemProperties property = this.analyzer.getMap().get(itemProperties.buildMapKey());
 				if (property == null)
 				{
 					this.analyzer.properties.add(itemProperties);
-					this.analyzer.map.put(itemProperties.buildMapKey(), itemProperties);
+					this.analyzer.getMap().put(itemProperties.buildMapKey(), itemProperties);
 				}
 				else
 				{
-					if (itemProperties.value > property.value)
+					if (itemProperties.getValue() > property.getValue())
 					{
-						property.value = itemProperties.value;
+						property.setValue(itemProperties.getValue());
 					}
 				}
 

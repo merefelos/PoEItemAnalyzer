@@ -112,9 +112,9 @@ public class PoEItemAnalyzer implements Runnable
 			}
 			else
 			{
-				if (socketprops.value < sockets && !this.isUnique)
+				if (socketprops.getValue() < sockets && !this.isUnique)
 				{
-					socketprops.value = sockets;
+					socketprops.setValue(sockets);
 				}
 			}
 
@@ -122,7 +122,7 @@ public class PoEItemAnalyzer implements Runnable
 
 			if (rating != null)
 			{
-				display.addInfo(rating, "Sockets");
+				display.addInfo(rating, "Sockets", socketprops.getId(), level);
 			}
 		}
 
@@ -153,7 +153,7 @@ public class PoEItemAnalyzer implements Runnable
 
 				if (rating != null)
 				{
-					display.addInfo(rating, line);
+					display.addInfo(rating, line, this.denumerize(line), level);
 				}
 			}
 		}
@@ -221,9 +221,9 @@ public class PoEItemAnalyzer implements Runnable
 					{
 						int v = range.getKey();
 
-						if (minProperties.value < v)
+						if (minProperties.getValue() < v)
 						{
-							minProperties.value = v;
+							minProperties.setValue(v);
 						}
 					}
 
@@ -241,14 +241,14 @@ public class PoEItemAnalyzer implements Runnable
 					else
 					{
 						int v = range.getValue();
-						if (maxProperties.value < v)
+						if (maxProperties.getValue() < v)
 						{
-							maxProperties.value = v;
+							maxProperties.setValue(v);
 						}
 					}
 
-					returnRater = this.analyzeRating(minProperties.value,
-							maxProperties.value, id, level, type);
+					returnRater = this.analyzeRating(minProperties.getValue(),
+							maxProperties.getValue(), id, level, type);
 				}
 				else if (dValue != -1)
 				{
@@ -272,9 +272,9 @@ public class PoEItemAnalyzer implements Runnable
 					}
 					else
 					{
-						if (properties.value < retardedValue && !this.isUnique)
+						if (properties.getValue() < retardedValue && !this.isUnique)
 						{
-							properties.value = retardedValue;
+							properties.setValue(retardedValue);
 						}
 					}
 
@@ -296,9 +296,9 @@ public class PoEItemAnalyzer implements Runnable
 					}
 					else
 					{
-						if (properties.value < value && !this.isUnique)
+						if (properties.getValue() < value && !this.isUnique)
 						{
-							properties.value = value;
+							properties.setValue(value);
 						}
 					}
 
@@ -340,7 +340,7 @@ public class PoEItemAnalyzer implements Runnable
 
 			if (props != null)
 			{
-				storedValue = Math.max(storedValue, props.value);
+				storedValue = Math.max(storedValue, props.getValue());
 			}
 		}
 
@@ -434,9 +434,21 @@ public class PoEItemAnalyzer implements Runnable
 		}
 	}
 
-	public static boolean              running    = true;
-	public static Queue<String>        queue      = new LinkedList<String>();
-	public        List<ItemProperties> properties = new ArrayList<ItemProperties>(64);
+	public List<ItemProperties> getProperties()
+	{
+		return properties;
+	}
+
+	public static boolean       running = true;
+	public static Queue<String> queue   = new LinkedList<String>();
+
+	public List<ItemProperties> properties = new ArrayList<ItemProperties>(64);
+
+	public Map<String, ItemProperties> getMap()
+	{
+		return map;
+	}
+
 	Map<String, ItemProperties> map = new HashMap<String, ItemProperties>();
 	public FileManager fileManager;
 
