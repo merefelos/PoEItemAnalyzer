@@ -43,7 +43,7 @@ public class PoEItemAnalyzer implements Runnable
 				e.printStackTrace();
 			}
 			c++;
-			if (c == 10)
+			if (c == 50)
 			{
 				this.c = 0;
 				fileManager.putIntoFile(new File("properties.cnf"), this.properties);
@@ -100,6 +100,7 @@ public class PoEItemAnalyzer implements Runnable
 			sockets = s1.length();
 
 			ItemProperties socketprops = map.get(this.buildMapKey("Sockets", level, "null", type));
+
 			if (socketprops == null)
 			{
 				socketprops = new ItemProperties("Sockets", level, "null", sockets, type);
@@ -206,8 +207,6 @@ public class PoEItemAnalyzer implements Runnable
 				{
 					ItemProperties minProperties = map.get(this.buildMapKey(id, level, "min", type));
 					ItemProperties maxProperties = map.get(this.buildMapKey(id, level, "max", type));
-					int storedMin = 0;
-					int storedMax = 0;
 
 					if (minProperties == null)
 					{
@@ -221,7 +220,7 @@ public class PoEItemAnalyzer implements Runnable
 					else
 					{
 						int v = range.getKey();
-						storedMin = minProperties.value;
+
 						if (minProperties.value < v)
 						{
 							minProperties.value = v;
@@ -232,6 +231,7 @@ public class PoEItemAnalyzer implements Runnable
 					if (maxProperties == null)
 					{
 						maxProperties = new ItemProperties(id, level, "max", range.getValue(), type);
+
 						if (!this.isUnique)
 						{
 							this.properties.add(maxProperties);
@@ -241,7 +241,6 @@ public class PoEItemAnalyzer implements Runnable
 					else
 					{
 						int v = range.getValue();
-						storedMax = maxProperties.value;
 						if (maxProperties.value < v)
 						{
 							maxProperties.value = v;
@@ -262,55 +261,48 @@ public class PoEItemAnalyzer implements Runnable
 					int storedValue = 0;
 					if (properties == null)
 					{
-						ItemProperties itemProperties = new ItemProperties(id, level, "null", retardedValue,
+						properties = new ItemProperties(id, level, "null", retardedValue,
 								type);
 
 						if (!this.isUnique)
 						{
-							this.properties.add(itemProperties);
-							this.map.put(itemProperties.buildMapKey(), itemProperties);
+							this.properties.add(properties);
+							this.map.put(properties.buildMapKey(), properties);
 						}
-
-						returnRater = new PropertyRater(100, 100);
 					}
 					else
 					{
-						storedValue = properties.value;
 						if (properties.value < retardedValue && !this.isUnique)
 						{
 							properties.value = retardedValue;
 						}
-
-						returnRater = this.analyzeRating(id, storedValue, "null", retardedValue, type);
 					}
 
+					returnRater = this.analyzeRating(id, storedValue, "null", retardedValue, type);
 				}
 				else if (value != -1)
 				{
 					ItemProperties properties = this.map.get(this.buildMapKey(id, level, "null", type));
-					int storedValue = 0;
 
 					if (properties == null)
 					{
-						ItemProperties itemProperties = new ItemProperties(id, level, "null", value, type);
+						properties = new ItemProperties(id, level, "null", value, type);
 
 						if (!this.isUnique)
 						{
-							this.properties.add(itemProperties);
-							this.map.put(itemProperties.buildMapKey(), itemProperties);
+							this.properties.add(properties);
+							this.map.put(properties.buildMapKey(), properties);
 						}
-
-						returnRater = new PropertyRater(100, 100);
 					}
 					else
 					{
-						storedValue = properties.value;
 						if (properties.value < value && !this.isUnique)
 						{
 							properties.value = value;
 						}
-						returnRater = this.analyzeRating(id, level, "null", value, type);
 					}
+
+					returnRater = this.analyzeRating(id, level, "null", value, type);
 				}
 			}
 		}
@@ -345,6 +337,7 @@ public class PoEItemAnalyzer implements Runnable
 		for (int i = 0; i <= level; i++)
 		{
 			ItemProperties props = map.get(this.buildMapKey(id, i, context, type));
+
 			if (props != null)
 			{
 				storedValue = Math.max(storedValue, props.value);
