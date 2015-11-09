@@ -147,9 +147,9 @@ public class PoEItemAnalyzer implements Runnable
 			}
 			else
 			{
-				if (properties.value < value && !this.isUnique)
+				if (properties.getValue() < value && !this.isUnique)
 				{
-					properties.value = value;
+					properties.setValue(value);
 				}
 			}
 
@@ -236,7 +236,7 @@ public class PoEItemAnalyzer implements Runnable
 
 			if (groupRating != null)
 			{
-				display.addInfo(groupRating, "Sockets");
+				display.addInfo(groupRating, item, "Sockets", this.requiredLevel);
 			}
 		}
 
@@ -261,7 +261,7 @@ public class PoEItemAnalyzer implements Runnable
 
 				if (group != null)
 				{
-					display.addInfo(groupRating, line, this.denumerize(line), level);
+					display.addInfo(groupRating, line, this.denumerize(line), this.requiredLevel);
 				}
 			}
 		}
