@@ -1,13 +1,10 @@
 package main;
 
-import com.sun.xml.internal.ws.api.PropertySet;
-import main.PoEItemAnalyzer;
 import main.listeners.SettingsSaveListener;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SettingsDialog extends JDialog
@@ -16,9 +13,12 @@ public class SettingsDialog extends JDialog
 	{
 		this.analyzer = analyzer;
 		this.mainForm = mainForm;
+		this.setTitle("Property settings");
 		setContentPane(contentPane);
-		setSize(300, 400);
-		setLocation(0, 500);
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+
+		setSize(500, (dimension.height / 3) * 2 - 60);
+		setLocation(0, dimension.height / 3);
 		setModal(true);
 		getRootPane().setDefaultButton(buttonOK);
 
@@ -38,17 +38,77 @@ public class SettingsDialog extends JDialog
 	/**
 	 * Display the list of all available properties
 	 */
-	private void compilePropertyList()
+	public void compilePropertyList()
 	{
-		List<JCheckBox> propertyList = mainForm.getPropertyLister().getPropertyListAsCheckboxes();
+		final List<JCheckBox> propertyList = mainForm.getPropertyLister()
+				.getPropertyListAsCheckboxes();
 
-		JPanel panel = new JPanel();
+		this.checkBoxPanel = new JPanel();
+
+		GridBagLayout gridBagLayout = new GridBagLayout();
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		gridBagLayout.setConstraints(this.checkBoxPanel, constraints);
+		this.checkBoxPanel.setLayout(gridBagLayout);
+		int i = 0;
 		for (JCheckBox checkBox : propertyList)
 		{
-			panel.add(checkBox);
+			constraints.gridx = 0;
+			constraints.gridy = i++;
+			checkBox.setVisible(true);
+			this.checkBoxPanel.add(checkBox, constraints);
 		}
-		panel.setLayout(new GridLayout(propertyList.size(), 1));
-		this.propertyScrollPane.getViewport().add(panel);
+		constraints = new GridBagConstraints();
+		constraints.weighty = 1;
+		this.checkBoxPanel.add(new JLabel(""), constraints);
+
+		this.propertyScrollPane.getViewport().add(this.checkBoxPanel);
+
+		// Filter by label part
+		this.filterInput.addKeyListener(new PropertyFilterKeyAdapter(this));
+		this.selectAllButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				for (JCheckBox checkBox : propertyList)
+				{
+					if (checkBox.isVisible())
+					{
+						checkBox.setSelected(true);
+					}
+				}
+			}
+		});
+		this.deselectAllButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				for (JCheckBox checkBox : propertyList)
+				{
+					if (checkBox.isVisible())
+					{
+						checkBox.setSelected(false);
+					}
+				}
+			}
+		});
+	}
+
+	public JTextField getFilterInput()
+	{
+		return filterInput;
+	}
+
+	public MainForm getMainForm()
+	{
+		return mainForm;
+	}
+
+	public JPanel getCheckBoxPanel()
+	{
+		return checkBoxPanel;
 	}
 
 	private JPanel          contentPane;
@@ -56,7 +116,12 @@ public class SettingsDialog extends JDialog
 	private JButton         buttonCancel;
 	private JCheckBox       enableSubCategorizedViewCheckBox;
 	private JTabbedPane     settingsTabbedPane;
+	private JPanel          checkBoxPanel;
 	private JScrollPane     propertyScrollPane;
+	private JPanel          propertyFilterPanel;
+	private JTextField      filterInput;
+	private JButton         selectAllButton;
+	private JButton         deselectAllButton;
 	private PoEItemAnalyzer analyzer;
 	private MainForm        mainForm;
 }

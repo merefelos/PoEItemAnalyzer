@@ -23,8 +23,6 @@ public class MenuListenerSettings implements ActionListener
 	{
 		// Open settings window
 		SettingsDialog settingsDialog = new SettingsDialog(this.analyzer, this.mainForm);
-
-
 		settingsDialog.setVisible(true);
 	}
 

@@ -140,7 +140,7 @@ public class FileManager
 					{
 						// subtype
 						String subGroup = strokenizer.nextToken();
-						this.groupMap.put(itemName, subGroup);
+						this.groupMap.put(itemName, typeName + subGroup);
 					}
 				}
 
