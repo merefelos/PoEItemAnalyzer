@@ -20,6 +20,7 @@ public class FileManager
 				fileWriter.close();
 				file = new File("properties.cnf");
 			}
+
 			Scanner fileScanner = new Scanner(file);
 			while (fileScanner.hasNextLine())
 			{
@@ -59,37 +60,94 @@ public class FileManager
 	public HashMap<String, List<String>> readTypesFromFile()
 	{
 		HashMap<String, List<String>> types = new HashMap<String, List<String>>(64);
-		try
+
+		File dir = new File("types");
+		File[] typeFiles = dir.listFiles();
+		for (int i = 0; i < typeFiles.length; i++)
 		{
-			File dir = new File("types");
-			File[] typeFiles = dir.listFiles();
-			for (int i = 0; i < typeFiles.length; i++)
+			if (typeFiles[i].isFile())
 			{
-				if (typeFiles[i].isFile())
+				StringTokenizer tokenizer =
+					new StringTokenizer(typeFiles[i].getName(), ".");
+				String typeName = tokenizer.nextToken();
+
+				InputStream inputStream =
+					this.getClass().getClassLoader().getResourceAsStream(typeFiles[i].getName());
+				Scanner fileScanner = new Scanner(inputStream);
+				List<String> subtypes = new ArrayList<String>();
+
+				while (fileScanner.hasNextLine())
 				{
-					StringTokenizer tokenizer = new StringTokenizer(typeFiles[i].getName(), ".");
-					String typeName = tokenizer.nextToken();
-					Scanner fileScanner = new Scanner(typeFiles[i]);
-					List<String> subtypes = new ArrayList<String>();
-					while (fileScanner.hasNextLine())
+					String line = fileScanner.nextLine();
+					line = line.trim();
+					if (line.length() > 0)
 					{
-						String line = fileScanner.nextLine();
-						line = line.trim();
-						if (line.length() > 0)
-						{
-							subtypes.add(line);
-						}
+						subtypes.add(line);
+						this.getGroupMap().put(line, typeName);
 					}
-					types.put(typeName, subtypes);
-					fileScanner.close();
 				}
+
+				this.groups.put(typeName, subtypes);
+				fileScanner.close();
 			}
 		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
+
 		return types;
+	}
+
+	public void readCSVTypes()
+	{
+		File dir = new File("csvTypes");
+		File[] typeFiles = dir.listFiles();
+
+		for (int i = 0; i < typeFiles.length; i++)
+		{
+			if (typeFiles[i].isFile())
+			{
+				StringTokenizer tokenizer =
+					new StringTokenizer(typeFiles[i].getName(), ".");
+				String typeName = tokenizer.nextToken();
+
+				InputStream inputStream =
+					this.getClass().getClassLoader().getResourceAsStream(typeFiles[i].getName());
+				Scanner fileScanner = new Scanner(inputStream);
+				List<String> itemNames = new ArrayList<String>();
+
+				while (fileScanner.hasNextLine())
+				{
+					String line = fileScanner.nextLine();
+					line = line.trim();
+
+					StringTokenizer strokenizer = new StringTokenizer(line, ",");
+
+					String itemName = "";
+
+					if (strokenizer.hasMoreTokens())
+					{
+						itemName = strokenizer.nextToken();
+						this.groupMap.put(itemName, typeName);
+						itemNames.add(itemName);
+					}
+
+					if (strokenizer.hasMoreTokens())
+					{
+						// implicit property
+						String implicitProperty = strokenizer.nextToken();
+						this.implicitAttributeMap.put(itemName, implicitProperty);
+					}
+
+					if (strokenizer.hasMoreTokens())
+					{
+						// subtype
+						String subGroup = strokenizer.nextToken();
+						this.groupMap.put(itemName, subGroup);
+					}
+				}
+
+				this.groups.put(typeName, itemNames);
+				fileScanner.close();
+			}
+		}
 	}
 
 	private ItemProperties parseProperties(String rawData)
@@ -103,5 +161,35 @@ public class FileManager
 
 		return new ItemProperties(id, level, context, value, type);
 	}
+
+
+	public Map<String, String> getGroupMap()
+	{
+		return groupMap;
+	}
+
+
+	public Map<String, String> getSubGroupMap()
+	{
+		return subGroupMap;
+	}
+
+
+	public Map<String, String> getImplicitAttributeMap()
+	{
+		return implicitAttributeMap;
+	}
+
+
+	public Map<String, List<String>> getGroups()
+	{
+		return groups;
+	}
+
+
+	private Map<String, String> groupMap = new HashMap<>();
+	private Map<String, String> subGroupMap = new HashMap<>();;
+	private Map<String, String> implicitAttributeMap = new HashMap<>();;
+	private Map<String, List<String>> groups = new HashMap<>();
 
 }

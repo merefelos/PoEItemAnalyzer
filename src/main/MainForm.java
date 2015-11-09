@@ -81,14 +81,21 @@ public class MainForm
 
 	public void addInfo(PropertyRater propertyRater, String originalText)
 	{
-		if (c < 17)
+		if (propertyRater != null && c < 17)
 		{
-			this.labels.get(c).setText(propertyRater.formattedPercentage() + " " + originalText);
+			String implicit = "*I ";
+
+			if (!propertyRater.isImplicit())
+			{
+				implicit = "";
+			}
+
+			this.labels.get(c).setText(implicit + propertyRater.formattedPercentage() + " " + originalText);
 
 			this.panels.get(c).setBackground(propertyRater.calculateColor());
-		}
 
-		c++;
+			c++;
+		}
 	}
 
 	public void resetLabels()

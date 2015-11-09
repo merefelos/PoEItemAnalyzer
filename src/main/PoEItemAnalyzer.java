@@ -19,6 +19,7 @@ public class PoEItemAnalyzer implements Runnable
 		fileManager.readFromFile(new File("properties.cnf"), this.properties);
 		this.populateMap();
 		this.types = fileManager.readTypesFromFile();
+		fileManager.readCSVTypes();
 		this.patterns.add(".*[0-9]+.*");
 	}
 
@@ -31,6 +32,9 @@ public class PoEItemAnalyzer implements Runnable
 			if (s != null)
 			{
 				display.setRawText(s);
+				display.resetLabels();
+
+				this.preAnalysis(s);
 				this.analyzeItem(s);
 			}
 
@@ -51,12 +55,10 @@ public class PoEItemAnalyzer implements Runnable
 		}
 	}
 
-	private boolean analyzeItem(String item)
+	private void preAnalysis(String item)
 	{
-		int level = -1;
+		this.requiredLevel = 0;
 		this.isUnique = false;
-		// Clear display before outputting the new stuff
-		display.resetLabels();
 
 		// Check uniqueness
 		Pattern pattern4 = Pattern.compile("Rarity: Unique\n");
@@ -77,12 +79,135 @@ public class PoEItemAnalyzer implements Runnable
 
 			String s1 = strokenizer.nextToken();
 			s1 = strokenizer.nextToken();
-			level = Integer.parseInt(s1);
+			this.requiredLevel = Integer.parseInt(s1);
 		}
 
-		// Decide on item type
-		String type = this.digForType(item);
+		// If there are no requirements, level is 0
+		Pattern pattern3 = Pattern.compile("\nRequirements:.*\n");
+		Matcher matcher3 = pattern3.matcher(item);
+		if (!matcher3.find())
+		{
+			requiredLevel = 0;
+		}
 
+		// Decide on item type and other info.
+		this.name = this.digForName(item);
+
+		this.group = this.fileManager.getGroupMap().get(this.name);
+		this.subGroup = this.fileManager.getSubGroupMap().get(this.name);
+		this.implicitAttribute = this.fileManager.getImplicitAttributeMap().get(this.name);
+
+		if (this.group == null)
+		{
+			this.group = "other";
+		}
+
+		if (this.implicitAttribute == null)
+		{
+			this.implicitAttribute = "No implicit Attribute";
+		}
+		else
+		{
+			this.implicitAttribute = this.denumerize(this.implicitAttribute);
+		}
+	}
+
+
+	private PropertyRater crunchSingleValueData(String property,
+		String category,
+		String context,
+		int value)
+	{
+		PropertyRater rater = null;
+
+		if (category != null)
+		{
+			if (property.equals(this.implicitAttribute))
+			{
+				context = "implicit";
+				this.implicitAttribute = "No implicit Attribute";
+			}
+
+			ItemProperties properties = this.map
+				.get(this.buildMapKey(property, this.requiredLevel, context, category));
+
+			if (properties == null)
+			{
+				properties = new ItemProperties(property,
+					this.requiredLevel,
+					context,
+					value,
+					category);
+
+				if (!this.isUnique)
+				{
+					this.properties.add(properties);
+					this.map.put(properties.buildMapKey(), properties);
+				}
+			}
+			else
+			{
+				if (properties.value < value && !this.isUnique)
+				{
+					properties.value = value;
+				}
+			}
+
+			rater = this.analyzeRating(property, this.requiredLevel, context, value, this.group);
+
+			if (context.equals("implicit"))
+			{
+				rater.setImplicit(true);
+			}
+		}
+
+		return rater;
+	}
+
+
+	private PropertyRater crunchRangeData(String property,
+		String category,
+		int minValue,
+		int maxValue)
+	{
+		PropertyRater rater = null;
+
+		if (category != null)
+		{
+			String context = "";
+
+			if (property.equals(this.implicitAttribute))
+			{
+				context = " implicit";
+				this.implicitAttribute = "No implicit Attribute";
+			}
+
+			PropertyRater minRater =
+				this.crunchSingleValueData(property, category, "min" + context, minValue);
+			PropertyRater maxRater =
+				this.crunchSingleValueData(property, category, "max" + context, maxValue);
+
+			if (minRater.getPercentage() > maxRater.getPercentage())
+			{
+				rater = minRater;
+			}
+			else
+			{
+				rater = maxRater;
+			}
+
+			if (context.equals("implicit"))
+			{
+				rater.setImplicit(true);
+			}
+		}
+
+		return rater;
+	}
+
+
+	private boolean analyzeItem(String item)
+	{
 		// Grab sockets
 		Pattern pattern2 = Pattern.compile("\nSockets: .*\n");
 		Matcher matcher2 = pattern2.matcher(item);
@@ -99,39 +224,20 @@ public class PoEItemAnalyzer implements Runnable
 			s1 = s1.replaceAll("[^A-Z]", "");
 			sockets = s1.length();
 
-			ItemProperties socketprops = map.get(this.buildMapKey("Sockets", level, "null", type));
 
-			if (socketprops == null)
+			PropertyRater groupRating = this.crunchSingleValueData("Sockets",
+				this.group,
+				"null",
+				sockets);
+			PropertyRater subGroupRating = this.crunchSingleValueData("Sockets",
+				this.subGroup,
+				"null",
+				sockets);
+
+			if (groupRating != null)
 			{
-				socketprops = new ItemProperties("Sockets", level, "null", sockets, type);
-				if (!this.isUnique)
-				{
-					this.properties.add(socketprops);
-					this.map.put(socketprops.buildMapKey(), socketprops);
-				}
+				display.addInfo(groupRating, "Sockets");
 			}
-			else
-			{
-				if (socketprops.value < sockets && !this.isUnique)
-				{
-					socketprops.value = sockets;
-				}
-			}
-
-			PropertyRater rating = this.analyzeRating("Sockets", level, "null", sockets, type);
-
-			if (rating != null)
-			{
-				display.addInfo(rating, "Sockets");
-			}
-		}
-
-		// If there are no requirements, level is 0
-		Pattern pattern3 = Pattern.compile("\nRequirements:.*\n");
-		Matcher matcher3 = pattern3.matcher(item);
-		if (!matcher3.find())
-		{
-			level = 0;
 		}
 
 		Scanner scanner = new Scanner(item);
@@ -149,11 +255,13 @@ public class PoEItemAnalyzer implements Runnable
 			}
 			if (!goAway)
 			{
-				PropertyRater rating = this.analyzeLine(line, level, type);
+				PropertyRater groupRating = this.analyzeLine(line, this.group);
+				PropertyRater subGroupRating = this.analyzeLine(line, this.subGroup);
 
-				if (rating != null)
+
+				if (group != null)
 				{
-					display.addInfo(rating, line);
+					display.addInfo(groupRating, line);
 				}
 			}
 		}
@@ -161,27 +269,25 @@ public class PoEItemAnalyzer implements Runnable
 		return true;
 	}
 
-	private String digForType(String item)
+
+	private String digForName(String item)
 	{
-		for (String type : types.keySet())
+		for (String name : this.fileManager.getGroupMap().keySet())
 		{
-			List<String> subtypeList = types.get(type);
-			for (String subtype : subtypeList)
+			if (item.contains(name))
 			{
-				if (item.contains(subtype))
-				{
-					return type;
-				}
+				return name;
 			}
 		}
+
 		return "other";
 	}
 
-	private PropertyRater analyzeLine(String line, int level, String type)
+	private PropertyRater analyzeLine(String line, String category)
 	{
 		PropertyRater returnRater = null;
 
-		if (!garbage.contains(line))
+		if (!garbage.contains(line) && category != null)
 		{
 			String id = this.denumerize(line);
 
@@ -205,104 +311,20 @@ public class PoEItemAnalyzer implements Runnable
 
 				if (range != null)
 				{
-					ItemProperties minProperties = map.get(this.buildMapKey(id, level, "min", type));
-					ItemProperties maxProperties = map.get(this.buildMapKey(id, level, "max", type));
-
-					if (minProperties == null)
-					{
-						minProperties = new ItemProperties(id, level, "min", range.getKey(), type);
-						if (!this.isUnique)
-						{
-							this.properties.add(minProperties);
-							this.map.put(minProperties.buildMapKey(), minProperties);
-						}
-					}
-					else
-					{
-						int v = range.getKey();
-
-						if (minProperties.value < v)
-						{
-							minProperties.value = v;
-						}
-					}
-
-
-					if (maxProperties == null)
-					{
-						maxProperties = new ItemProperties(id, level, "max", range.getValue(), type);
-
-						if (!this.isUnique)
-						{
-							this.properties.add(maxProperties);
-							this.map.put(maxProperties.buildMapKey(), maxProperties);
-						}
-					}
-					else
-					{
-						int v = range.getValue();
-						if (maxProperties.value < v)
-						{
-							maxProperties.value = v;
-						}
-					}
-
-					returnRater = this.analyzeRating(minProperties.value,
-							maxProperties.value, id, level, type);
+					returnRater = this.crunchRangeData(id, category, range.getKey(), range.getValue());
 				}
 				else if (dValue != -1)
 				{
-					ItemProperties properties = this.map.get(this.buildMapKey(id, level, "null", type));
-
 					// scaling up the doubles
 					dValue *= 100;
 
 					int retardedValue = (int) dValue;
-					int storedValue = 0;
-					if (properties == null)
-					{
-						properties = new ItemProperties(id, level, "null", retardedValue,
-								type);
 
-						if (!this.isUnique)
-						{
-							this.properties.add(properties);
-							this.map.put(properties.buildMapKey(), properties);
-						}
-					}
-					else
-					{
-						if (properties.value < retardedValue && !this.isUnique)
-						{
-							properties.value = retardedValue;
-						}
-					}
-
-					returnRater = this.analyzeRating(id, storedValue, "null", retardedValue, type);
+					returnRater = this.crunchSingleValueData(id, category, "null", retardedValue);
 				}
 				else if (value != -1)
 				{
-					ItemProperties properties = this.map.get(this.buildMapKey(id, level, "null", type));
-
-					if (properties == null)
-					{
-						properties = new ItemProperties(id, level, "null", value, type);
-
-						if (!this.isUnique)
-						{
-							this.properties.add(properties);
-							this.map.put(properties.buildMapKey(), properties);
-						}
-					}
-					else
-					{
-						if (properties.value < value && !this.isUnique)
-						{
-							properties.value = value;
-						}
-					}
-
-					returnRater = this.analyzeRating(id, level, "null", value, type);
+					returnRater = this.crunchSingleValueData(id, category, "null", value);
 				}
 			}
 		}
@@ -310,31 +332,12 @@ public class PoEItemAnalyzer implements Runnable
 		return returnRater;
 	}
 
-	private PropertyRater analyzeRating(int newMin, int newMax, String id, int level, String type)
-	{
-		PropertyRater minRating = this.analyzeRating(id, level, "min", newMin, type);
-		PropertyRater maxRating = this.analyzeRating(id, level, "max", newMax, type);
-
-		PropertyRater rater;
-
-		if (minRating.getPercentage() > maxRating.getPercentage())
-		{
-			rater = minRating;
-		}
-		else
-		{
-			rater = maxRating;
-		}
-
-		return rater;
-	}
-
 	private PropertyRater analyzeRating(String id, int level, String context, int newValue, String
 			type)
 	{
 		int storedValue = 0;
-		int maxValue = -1;
-		for (int i = 0; i <= level; i++)
+
+		for (int i = -1; i <= level; i++)
 		{
 			ItemProperties props = map.get(this.buildMapKey(id, i, context, type));
 
@@ -443,7 +446,12 @@ public class PoEItemAnalyzer implements Runnable
 	private int     c        = 0;
 	private boolean isUnique = false;
 
-	// +[0-9]*%jabadajabada
+	private int requiredLevel = -1;
+	private String name = null;
+	private String group = null;
+	private String subGroup = null;
+	private String implicitAttribute = "No implicit Attribute";
+
 	List<String>                  patterns = new ArrayList<String>(32);
 	Set<String>                   garbage  = new HashSet<String>();
 	HashMap<String, List<String>> types    = new HashMap<String, List<String>>(64);

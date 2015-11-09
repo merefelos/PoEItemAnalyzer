@@ -65,7 +65,20 @@ public class PropertyRater
 	}
 
 
+	public boolean isImplicit()
+	{
+		return implicit;
+	}
+
+
+	public void setImplicit(boolean implicit)
+	{
+		this.implicit = implicit;
+	}
+
+
 	private double percentage;
 	private int maxValue;
 	private int value;
+	private boolean implicit = false;
 }
