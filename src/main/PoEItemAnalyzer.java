@@ -261,7 +261,7 @@ public class PoEItemAnalyzer implements Runnable
 
 				if (group != null)
 				{
-					display.addInfo(groupRating, line);
+					display.addInfo(groupRating, line, this.denumerize(line), level);
 				}
 			}
 		}
@@ -336,14 +336,14 @@ public class PoEItemAnalyzer implements Runnable
 			type)
 	{
 		int storedValue = 0;
-
+		
 		for (int i = -1; i <= level; i++)
 		{
 			ItemProperties props = map.get(this.buildMapKey(id, i, context, type));
 
 			if (props != null)
 			{
-				storedValue = Math.max(storedValue, props.value);
+				storedValue = Math.max(storedValue, props.getValue());
 			}
 		}
 
@@ -437,9 +437,21 @@ public class PoEItemAnalyzer implements Runnable
 		}
 	}
 
-	public static boolean              running    = true;
-	public static Queue<String>        queue      = new LinkedList<String>();
-	public        List<ItemProperties> properties = new ArrayList<ItemProperties>(64);
+	public List<ItemProperties> getProperties()
+	{
+		return properties;
+	}
+
+	public static boolean       running = true;
+	public static Queue<String> queue   = new LinkedList<String>();
+
+	public List<ItemProperties> properties = new ArrayList<ItemProperties>(64);
+
+	public Map<String, ItemProperties> getMap()
+	{
+		return map;
+	}
+
 	Map<String, ItemProperties> map = new HashMap<String, ItemProperties>();
 	public FileManager fileManager;
 

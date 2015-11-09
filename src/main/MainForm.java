@@ -3,8 +3,9 @@
 package main;
 
 
-import java.awt.Color;
-import java.awt.event.KeyEvent;
+import main.listeners.MenuListenerImport;
+import main.listeners.MenuListenerSettings;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,13 +64,23 @@ public class MainForm
 
 	public JMenuBar initMenu()
 	{
+		// Import main.listeners
 		this.menuBar = new JMenuBar();
-		this.menu = new JMenu("Import Tools");
-		this.menuBar.add(menu);
-		this.menuItem = new JMenuItem("Import & Merge");
-		this.menu.add(menuItem);
-		this.menuItem.addActionListener(new MenuListener(this.mainFrame, this.analyzer));
+		this.menu1 = new JMenu("Configuration tools");
+		this.menuBar.add(menu1);
+		this.menu1.add(new JMenuItem("Import & Merge")).addActionListener(new MenuListenerImport(this
+				.mainFrame, this.analyzer));
+		// Configuration settings
+		this.menu2 = new JMenu("Settings");
+		this.menuBar.add(this.menu2);
+		this.menu2.add(new JMenuItem("Filter Settings")).addActionListener(new MenuListenerSettings
+				(this.analyzer, this));
 		return this.menuBar;
+	}
+
+	public void initPropertySettings()
+	{
+		this.propertyLister = new PropertyLister(this.analyzer);
 	}
 
 	public void setRawText(String text)
@@ -78,23 +89,33 @@ public class MainForm
 		c = 1;
 	}
 
-
-	public void addInfo(PropertyRater propertyRater, String originalText)
+	public PropertyLister getPropertyLister()
 	{
-		if (propertyRater != null && c < 17)
+		return propertyLister;
+	}
+
+	public void addInfo(PropertyRater propertyRater, String originalText, String id, int level)
+	{
+		if (this.propertyLister.getCheckBoxMap().get(this.propertyLister.buildCheckBoxLabel(id,
+				level, "null")) != null && this.propertyLister.getCheckBoxMap().get(this.propertyLister
+				.buildCheckBoxLabel(id,
+						level, "null")).isSelected())
 		{
-			String implicit = "*I ";
-
-			if (!propertyRater.isImplicit())
+			if (propertyRater != null && c < 17)
 			{
-				implicit = "";
+				String implicit = "*I ";
+
+				if (!propertyRater.isImplicit())
+				{
+					implicit = "";
+				}
+
+				this.labels.get(c).setText(implicit + propertyRater.formattedPercentage() + " " + originalText);
+
+				this.panels.get(c).setBackground(propertyRater.calculateColor());
+
+				c++;
 			}
-
-			this.labels.get(c).setText(implicit + propertyRater.formattedPercentage() + " " + originalText);
-
-			this.panels.get(c).setBackground(propertyRater.calculateColor());
-
-			c++;
 		}
 	}
 
@@ -147,10 +168,10 @@ public class MainForm
 
 	public JPanel main;
 
-	public JFrame    mainFrame;
-	public JMenuBar  menuBar;
-	public JMenu     menu;
-	public JMenuItem menuItem;
+	public JFrame   mainFrame;
+	public JMenuBar menuBar;
+	public JMenu    menu1;
+	public JMenu    menu2;
 
 	private JTextArea rawText;
 
@@ -186,5 +207,5 @@ public class MainForm
 	public Map<Integer, JLabel> labels = new HashMap<Integer, JLabel>();
 
 	private PoEItemAnalyzer analyzer;
-
+	private PropertyLister  propertyLister;
 }

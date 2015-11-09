@@ -4,16 +4,20 @@ package main;
 import javax.swing.*;
 
 /**
- * TODO: Low level socket problem
  * TODO: Configurable property list (hide unwanted) - ID-based
  * TODO: Create/populate ID - handsome ID file (for display in the configuration list)
  * TODO: Configure general (subcategories disabled) vs. categorized view
  * TODO: Save subcategory property records as separate lines (e.g. an armor item would have two
  * records - one for "armor" and one for "energetic evasion armor")
- * TODO: Show property list (from menu), with sorting/filtering options, allow edit from config
- * window
+ * TODO: Update property list with sorting/filtering options, include:
+ *        select all/none
+ *        show only checked
+ *        filter/search by part of name (dropdown/combobox/autocomplete/keywords) (i.e. "check all
+ *        containing...")
+ * CONSIDER: turn configs into a table, to list also type etc.
  * TODO: Configurable threshold to show/hide properties with a certain rating
  * TODO: Enable collecting gem properties
+ * TODO: Implement implicit variable recognition
  */
 public class Launcher
 {
@@ -26,13 +30,13 @@ public class Launcher
 		frame.setSize(400, 400);
 		frame.setContentPane(mainForm.main);
 
-		frame.setVisible(true);
-
 		mainForm.initArrays();
 		PoEItemAnalyzer analyzer = new PoEItemAnalyzer(mainForm);
 		mainForm.setAnalyzer(analyzer);
 		JMenuBar menuBar = mainForm.initMenu();
+		mainForm.initPropertySettings();
 		frame.setJMenuBar(menuBar);
+		frame.setVisible(true);
 		new Thread(analyzer).start();
 		new Thread(new ClipBoarder()).start();
 	}
