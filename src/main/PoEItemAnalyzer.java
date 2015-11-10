@@ -236,7 +236,7 @@ public class PoEItemAnalyzer implements Runnable
 
 			if (groupRating != null)
 			{
-				display.addInfo(groupRating, item, "Sockets", this.requiredLevel);
+				display.addInfo(groupRating, "Sockets", "Sockets", this.requiredLevel);
 			}
 		}
 

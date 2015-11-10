@@ -96,10 +96,17 @@ public class MainForm
 
 	public void addInfo(PropertyRater propertyRater, String originalText, String id, int level)
 	{
-		if (this.propertyLister.getCheckBoxMap().get(this.propertyLister.buildCheckBoxLabel(id,
-				level, "null")) != null && this.propertyLister.getCheckBoxMap().get(this.propertyLister
-				.buildCheckBoxLabel(id,
-						level, "null")).isSelected())
+		JCheckBox checkBox = this.propertyLister.getCheckBoxMap()
+			.get(this.propertyLister.buildCheckBoxLabel(id, level, "null"));
+
+		boolean checkBoxGate = true;
+
+		if (checkBox != null)
+		{
+			checkBoxGate &= checkBox.isSelected();
+		}
+
+		if (checkBoxGate)
 		{
 			if (propertyRater != null && c < 17)
 			{
