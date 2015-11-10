@@ -9,6 +9,7 @@ import javax.swing.*;
  * CONSIDER: turn configs into a table, to list also type etc.
  * TODO: Configurable threshold to show/hide properties with a certain rating
  * TODO: Enable collecting gem properties
+ * TODO: Two Stone rings have multiple variations of implicit attribute.
  */
 public class Launcher
 {
