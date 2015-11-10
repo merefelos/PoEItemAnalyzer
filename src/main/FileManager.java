@@ -5,7 +5,6 @@ import java.util.*;
 
 /**
  * Created by Anna on 04/11/2015.
- * todo: http://alvinalexander.com/blog/post/java/read-text-file-from-jar-file
  */
 public class FileManager
 {
@@ -133,7 +132,11 @@ public class FileManager
 					{
 						// implicit property
 						String implicitProperty = strokenizer.nextToken();
-						this.implicitAttributeMap.put(itemName, implicitProperty);
+
+						if (!implicitProperty.equals("-"))
+						{
+							this.implicitAttributeMap.put(itemName, implicitProperty);
+						}
 					}
 
 					if (strokenizer.hasMoreTokens())
