@@ -34,7 +34,7 @@ public class PoEItemAnalyzer implements Runnable
 				display.setRawText(s);
 				display.resetLabels();
 
-				this.preAnalysis(s);
+				s = this.preAnalysis(s);
 				this.analyzeItem(s);
 
 				if (!this.implicitAttribute.equals("Implicit found"))
@@ -59,11 +59,13 @@ public class PoEItemAnalyzer implements Runnable
 			{
 				this.c = 0;
 				fileManager.putIntoFile(new File("properties.cnf"), this.properties);
+				fileManager.recordPrettyPropertyNames(this.display.getPropertyLister()
+						.getPropertyPrettyList());
 			}
 		}
 	}
 
-	private void preAnalysis(String item)
+	private String preAnalysis(String item)
 	{
 		this.requiredLevel = 0;
 		this.isUnique = false;
@@ -118,13 +120,15 @@ public class PoEItemAnalyzer implements Runnable
 		{
 			this.implicitAttribute = this.denumerize(this.implicitAttribute);
 		}
+
+		return item.replaceAll("(^[^-]*-{8})", "");
 	}
 
 
 	private PropertyRater crunchSingleValueData(String property,
-		String category,
-		String context,
-		int value)
+	                                            String category,
+	                                            String context,
+	                                            int value)
 	{
 		PropertyRater rater = null;
 
@@ -137,15 +141,15 @@ public class PoEItemAnalyzer implements Runnable
 			}
 
 			ItemProperties properties = this.map
-				.get(this.buildMapKey(property, this.requiredLevel, context, category));
+					.get(this.buildMapKey(property, this.requiredLevel, context, category));
 
 			if (properties == null)
 			{
 				properties = new ItemProperties(property,
-					this.requiredLevel,
-					context,
-					value,
-					category);
+						this.requiredLevel,
+						context,
+						value,
+						category);
 
 				if (!this.isUnique)
 				{
@@ -174,9 +178,9 @@ public class PoEItemAnalyzer implements Runnable
 
 
 	private PropertyRater crunchRangeData(String property,
-		String category,
-		int minValue,
-		int maxValue)
+	                                      String category,
+	                                      int minValue,
+	                                      int maxValue)
 	{
 		PropertyRater rater = null;
 
@@ -191,9 +195,9 @@ public class PoEItemAnalyzer implements Runnable
 			}
 
 			PropertyRater minRater =
-				this.crunchSingleValueData(property, category, "min" + context, minValue);
+					this.crunchSingleValueData(property, category, "min" + context, minValue);
 			PropertyRater maxRater =
-				this.crunchSingleValueData(property, category, "max" + context, maxValue);
+					this.crunchSingleValueData(property, category, "max" + context, maxValue);
 
 			if (minRater.getPercentage() > maxRater.getPercentage())
 			{
@@ -234,13 +238,13 @@ public class PoEItemAnalyzer implements Runnable
 
 
 			PropertyRater groupRating = this.crunchSingleValueData("Sockets",
-				this.group,
-				"null",
-				sockets);
+					this.group,
+					"null",
+					sockets);
 			PropertyRater subGroupRating = this.crunchSingleValueData("Sockets",
-				this.subGroup,
-				"null",
-				sockets);
+					this.subGroup,
+					"null",
+					sockets);
 
 			if (groupRating != null)
 			{
@@ -261,13 +265,12 @@ public class PoEItemAnalyzer implements Runnable
 					goAway = true;
 				}
 			}
-			if (!goAway)
+			if (!goAway && !line.contains(this.name) && !line.contains("---"))
 			{
 				PropertyRater groupRating = this.analyzeLine(line, this.group);
 				PropertyRater subGroupRating = this.analyzeLine(line, this.subGroup);
 
-
-				if (group != null)
+				if (group != null && groupRating != null)
 				{
 					display.addInfo(groupRating, line, this.denumerize(line), this.requiredLevel);
 				}
@@ -302,6 +305,9 @@ public class PoEItemAnalyzer implements Runnable
 			if (!id.equals(""))
 			{
 				id = id.replaceAll("augmented", "");
+
+				// So it's good enough to store - let's pack it into the pretty list
+				this.display.getPropertyLister().addPrettyProperty(id, line.replaceAll("augmented", ""));
 
 				int value = this.digForValue(line);
 				double dValue = -1;
@@ -466,10 +472,10 @@ public class PoEItemAnalyzer implements Runnable
 	private int     c        = 0;
 	private boolean isUnique = false;
 
-	private int requiredLevel = -1;
-	private String name = null;
-	private String group = null;
-	private String subGroup = null;
+	private int    requiredLevel     = -1;
+	private String name              = null;
+	private String group             = null;
+	private String subGroup          = null;
 	private String implicitAttribute = "No implicit Attribute";
 
 	List<String>                  patterns = new ArrayList<String>(32);
@@ -483,6 +489,9 @@ public class PoEItemAnalyzer implements Runnable
 		Int,
 		Item,
 		Level,
+		Rarity,
+		Requirements,
+		Sockets,
 	}
 
 	private final MainForm display;

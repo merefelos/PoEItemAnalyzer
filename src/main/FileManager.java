@@ -1,5 +1,7 @@
 package main;
 
+import javafx.util.Pair;
+
 import java.io.*;
 import java.util.*;
 
@@ -67,11 +69,11 @@ public class FileManager
 			if (typeFiles[i].isFile())
 			{
 				StringTokenizer tokenizer =
-					new StringTokenizer(typeFiles[i].getName(), ".");
+						new StringTokenizer(typeFiles[i].getName(), ".");
 				String typeName = tokenizer.nextToken();
 
 				InputStream inputStream =
-					this.getClass().getClassLoader().getResourceAsStream(typeFiles[i].getName());
+						this.getClass().getClassLoader().getResourceAsStream(typeFiles[i].getName());
 				Scanner fileScanner = new Scanner(inputStream);
 				List<String> subtypes = new ArrayList<String>();
 
@@ -104,11 +106,11 @@ public class FileManager
 			if (typeFiles[i].isFile())
 			{
 				StringTokenizer tokenizer =
-					new StringTokenizer(typeFiles[i].getName(), ".");
+						new StringTokenizer(typeFiles[i].getName(), ".");
 				String typeName = tokenizer.nextToken();
 
 				InputStream inputStream =
-					this.getClass().getClassLoader().getResourceAsStream(typeFiles[i].getName());
+						this.getClass().getClassLoader().getResourceAsStream(typeFiles[i].getName());
 				Scanner fileScanner = new Scanner(inputStream);
 				List<String> itemNames = new ArrayList<String>();
 
@@ -153,6 +155,56 @@ public class FileManager
 		}
 	}
 
+	public void recordPrettyPropertyNames(HashMap<String, String> prettyRecords)
+	{
+		try
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(("pretty.cnf")));
+			for (String plainName : prettyRecords.keySet())
+			{
+				writer.write(plainName + ":" + prettyRecords.get(plainName));
+				writer.newLine();
+			}
+
+			writer.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void readPrettyPropertyNames(File file, PropertyLister propertyLister)
+	{
+		PropertyLister lister = propertyLister;
+		try
+		{
+			if (!file.canRead())
+			{
+				// When no file given, assume initialization and create a config file
+				FileWriter fileWriter = new FileWriter(new File("pretty.cnf"));
+				fileWriter.close();
+				file = new File("pretty.cnf");
+			}
+
+			Scanner fileScanner = new Scanner(file);
+			while (fileScanner.hasNextLine())
+			{
+				Pair<String, String> prettyPair = lister.parsePrettyProperty(fileScanner.nextLine
+						());
+				lister.addPrettyProperty(prettyPair.getKey(), prettyPair.getValue());
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	private ItemProperties parseProperties(String rawData)
 	{
 		StringTokenizer tokenizer = new StringTokenizer(rawData, ":");
@@ -190,9 +242,9 @@ public class FileManager
 	}
 
 
-	private Map<String, String> groupMap = new HashMap<>();
-	private Map<String, String> subGroupMap = new HashMap<>();;
-	private Map<String, String> implicitAttributeMap = new HashMap<>();;
-	private Map<String, List<String>> groups = new HashMap<>();
+	private Map<String, String>       groupMap             = new HashMap<>();
+	private Map<String, String>       subGroupMap          = new HashMap<>();
+	private Map<String, String>       implicitAttributeMap = new HashMap<>();
+	private Map<String, List<String>> groups               = new HashMap<>();
 
 }

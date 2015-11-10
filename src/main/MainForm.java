@@ -98,7 +98,7 @@ public class MainForm
 	public void addInfo(PropertyRater propertyRater, String originalText, String id, int level)
 	{
 		JCheckBox checkBox = this.propertyLister.getCheckBoxMap()
-			.get(this.propertyLister.buildCheckBoxLabel(id, level, "null"));
+				.get(this.propertyLister.buildCheckBoxName(id, level, "null"));
 
 		boolean checkBoxGate = true;
 
@@ -118,7 +118,8 @@ public class MainForm
 					implicit = "";
 				}
 
-				this.labels.get(c).setText(implicit + propertyRater.formattedPercentage() + " " + originalText);
+				this.labels.get(c).setText(implicit + propertyRater.formattedPercentage() + " " +
+						originalText);
 
 				this.panels.get(c).setBackground(propertyRater.calculateColor());
 

@@ -1,6 +1,9 @@
 package main;
 
+import javafx.util.Pair;
+
 import javax.swing.*;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -12,6 +15,9 @@ public class PropertyLister
 	{
 		this.analyzer = analyzer;
 		this.propertyMap = new HashMap<String, ItemProperties>();
+		this.propertyPrettyList = new HashMap<>();
+		this.propertyListCheckBoxes = new ArrayList<>();
+		this.analyzer.fileManager.readPrettyPropertyNames(new File("pretty.cnf"), this);
 		this.populatePropertyMap();
 		this.buildCheckBoxes();
 	}
@@ -20,12 +26,12 @@ public class PropertyLister
 	{
 		for (ItemProperties itemProperties : this.analyzer.getProperties())
 		{
-			propertyMap.put(this.buildCheckBoxLabel(itemProperties.getId(), itemProperties.getLevel(),
+			propertyMap.put(this.buildCheckBoxName(itemProperties.getId(), itemProperties.getLevel(),
 					itemProperties.getContext()), itemProperties);
 		}
 	}
 
-	public String buildCheckBoxLabel(String id, int level, String context)
+	public String buildCheckBoxName(String id, int level, String context)
 	{
 		if (context.equals("null"))
 		{
@@ -45,14 +51,53 @@ public class PropertyLister
 
 	public void buildCheckBoxes()
 	{
-		this.propertyListCheckBoxes = new ArrayList<>();
 		this.checkBoxMap = new HashMap<>();
 		for (String property : this.propertyMap.keySet())
 		{
-			JCheckBox checkBox = new JCheckBox(property, true);
+			String label = property;
+			if (this.propertyPrettyList.get(this.propertyMap.get(property).getId()) != null)
+			{
+				label = this.buildCheckBoxName(
+						this.propertyPrettyList.get(this.propertyMap.get(property).getId()),
+						this.propertyMap.get(property).getLevel(),
+						this.propertyMap.get(property).getContext());
+			}
+			JCheckBox checkBox = new JCheckBox(label, true);
+			checkBox.setName(property);
 			propertyListCheckBoxes.add(checkBox);
 			this.checkBoxMap.put(property, checkBox);
 		}
+	}
+
+	public void addPrettyProperty(String name, String prettyName)
+	{
+		if (this.propertyPrettyList.get(name) == null)
+		{
+			prettyName = prettyName.replaceAll("[^a-zA-Z%\\+ ]", "");
+			if (!prettyName.equals(""))
+			{
+				this.propertyPrettyList.put(name, prettyName);
+
+				for (JCheckBox checkBox : this.getPropertyListAsCheckboxes())
+				{
+					if (checkBox.getName().contains(name))
+					{
+						checkBox.setText(prettyName);
+					}
+				}
+			}
+		}
+	}
+
+	public Pair<String, String> parsePrettyProperty(String raw)
+	{
+		StringTokenizer tokenizer = new StringTokenizer(raw, ":");
+		return new Pair<>(tokenizer.nextToken(), tokenizer.nextToken());
+	}
+
+	public HashMap<String, String> getPropertyPrettyList()
+	{
+		return propertyPrettyList;
 	}
 
 	public HashMap<String, JCheckBox> getCheckBoxMap()
@@ -62,16 +107,19 @@ public class PropertyLister
 
 	public List<JCheckBox> getPropertyListAsCheckboxes()
 	{
-		java.util.Collections.sort(this.propertyListCheckBoxes, new Comparator<JCheckBox>()
+		if (!this.propertyListCheckBoxes.isEmpty())
 		{
-			@Override
-			public int compare(JCheckBox o1, JCheckBox o2)
+			java.util.Collections.sort(this.propertyListCheckBoxes, new Comparator<JCheckBox>()
 			{
-				String o1String = o1.getText();
-				String o2String = o2.getText();
-				return o1String.compareTo(o2String);
-			}
-		});
+				@Override
+				public int compare(JCheckBox o1, JCheckBox o2)
+				{
+					String o1String = o1.getText();
+					String o2String = o2.getText();
+					return o1String.compareTo(o2String);
+				}
+			});
+		}
 		return this.propertyListCheckBoxes;
 	}
 
@@ -79,4 +127,5 @@ public class PropertyLister
 	private HashMap<String, ItemProperties> propertyMap;
 	private List<JCheckBox>                 propertyListCheckBoxes;
 	private HashMap<String, JCheckBox>      checkBoxMap;
+	private HashMap<String, String>         propertyPrettyList;
 }
