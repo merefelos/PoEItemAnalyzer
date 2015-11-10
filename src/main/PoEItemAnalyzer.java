@@ -18,7 +18,7 @@ public class PoEItemAnalyzer implements Runnable
 		this.display = display;
 		fileManager.readFromFile(new File("properties.cnf"), this.properties);
 		this.populateMap();
-		this.types = fileManager.readTypesFromFile();
+//		this.types = fileManager.readTypesFromFile();
 		fileManager.readCSVTypes();
 		this.patterns.add(".*[0-9]+.*");
 	}
@@ -130,7 +130,7 @@ public class PoEItemAnalyzer implements Runnable
 
 		if (category != null)
 		{
-			if (property.equals(this.implicitAttribute))
+			if (this.implicitAttribute.contains(property))
 			{
 				context = "implicit";
 				this.implicitAttribute = "Implicit found";
@@ -184,7 +184,7 @@ public class PoEItemAnalyzer implements Runnable
 		{
 			String context = "";
 
-			if (property.equals(this.implicitAttribute))
+			if (this.implicitAttribute.contains(property))
 			{
 				context = " implicit";
 				this.implicitAttribute = "Implicit found";
@@ -204,7 +204,7 @@ public class PoEItemAnalyzer implements Runnable
 				rater = maxRater;
 			}
 
-			if (context.equals("implicit"))
+			if (context.equals(" implicit"))
 			{
 				rater.setImplicit(true);
 			}

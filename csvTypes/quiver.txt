@@ -1,0 +1,8 @@
+Serrated Arrow Quiver, Adds Physical Damage to Attacks with Bows
+Two-Point Arrow Quiver, % increased Accuracy Rating
+Sharktooth Arrow Quiver, +to Life gained for each Enemy hit by your Attacks
+Blunt Arrow Quiver,% increased Stun Duration on Enemies
+Fire Arrow Quiver,Adds Fire Damage to Attacks with Bows
+Broadhead Arrow Quiver,Adds Physical Damage to Attacks with Bows
+Penetrating Arrow Quiver, % chance of Arrows Piercing
+Spike-Point Arrow Quiver, % increased Global Critical Strike Chance

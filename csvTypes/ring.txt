@@ -7,9 +7,7 @@ Ruby Ring,+% to Fire Resistance
 Gold Ring,% increased Rarity of Items found
 Golden Hoop,+ to All Attributes
 Jet Ring,default
-Two-Stone Ring,+% to Cold and Lightning Resistances
-Two-Stone Ring,+% to Fire and Lightning Resistances
-Two-Stone Ring,+% to Fire and Cold Resistances
+Two-Stone Ring,+% to Cold and Lightning Resistances +% to Fire and Lightning Resistances +% to Fire and Cold Resistances
 Moonstone Ring,+ to maximum Energy Shield
 Diamond Ring,% increased Global Critical Strike Chance
 Prismatic Ring,+% to all Elemental Resistances
