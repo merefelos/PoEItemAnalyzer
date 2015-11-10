@@ -12,6 +12,6 @@ Two-Stone Ring,+% to Fire and Lightning Resistances
 Two-Stone Ring,+% to Fire and Cold Resistances
 Moonstone Ring,+ to maximum Energy Shield
 Diamond Ring,% increased Global Critical Strike Chance
-Prismatic Ring,+% to all elemental resistances
+Prismatic Ring,+% to all Elemental Resistances
 Amethyst Ring,+% to Chaos Resistance
 Unset Ring,Has Socket
