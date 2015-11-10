@@ -6,6 +6,7 @@ package main;
 import main.listeners.MenuListenerImport;
 import main.listeners.MenuListenerSettings;
 
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -125,6 +126,19 @@ public class MainForm
 			}
 		}
 	}
+
+
+	public void implicitMissingWarning()
+	{
+		if (c < 17)
+		{
+			this.panels.get(c).setBackground(Color.PINK);
+			this.labels.get(c).setText("Implicit Missing !!!");
+
+			c++;
+		}
+	}
+
 
 	public void resetLabels()
 	{

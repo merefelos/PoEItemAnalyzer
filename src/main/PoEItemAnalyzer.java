@@ -36,6 +36,14 @@ public class PoEItemAnalyzer implements Runnable
 
 				this.preAnalysis(s);
 				this.analyzeItem(s);
+
+				if (!this.implicitAttribute.equals("Implicit found"))
+				{
+					if (!this.implicitAttribute.equals("No implicit Attribute"))
+					{
+						this.display.implicitMissingWarning();
+					}
+				}
 			}
 
 			try
@@ -125,7 +133,7 @@ public class PoEItemAnalyzer implements Runnable
 			if (property.equals(this.implicitAttribute))
 			{
 				context = "implicit";
-				this.implicitAttribute = "No implicit Attribute";
+				this.implicitAttribute = "Implicit found";
 			}
 
 			ItemProperties properties = this.map
@@ -179,7 +187,7 @@ public class PoEItemAnalyzer implements Runnable
 			if (property.equals(this.implicitAttribute))
 			{
 				context = " implicit";
-				this.implicitAttribute = "No implicit Attribute";
+				this.implicitAttribute = "Implicit found";
 			}
 
 			PropertyRater minRater =
