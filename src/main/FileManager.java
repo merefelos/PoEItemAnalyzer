@@ -109,48 +109,56 @@ public class FileManager
 						new StringTokenizer(typeFiles[i].getName(), ".");
 				String typeName = tokenizer.nextToken();
 
-				InputStream inputStream =
-						this.getClass().getClassLoader().getResourceAsStream(typeFiles[i].getName());
-				Scanner fileScanner = new Scanner(inputStream);
-				List<String> itemNames = new ArrayList<String>();
-
-				while (fileScanner.hasNextLine())
+				Scanner fileScanner = null;
+				try
 				{
-					String line = fileScanner.nextLine();
-					line = line.trim();
+					fileScanner = new Scanner(typeFiles[i]);
 
-					StringTokenizer strokenizer = new StringTokenizer(line, ",");
+					List<String> itemNames = new ArrayList<String>();
 
-					String itemName = "";
-
-					if (strokenizer.hasMoreTokens())
+					while (fileScanner.hasNextLine())
 					{
-						itemName = strokenizer.nextToken();
-						this.groupMap.put(itemName, typeName);
-						itemNames.add(itemName);
-					}
+						String line = fileScanner.nextLine();
+						line = line.trim();
 
-					if (strokenizer.hasMoreTokens())
-					{
-						// implicit property
-						String implicitProperty = strokenizer.nextToken();
+						StringTokenizer strokenizer = new StringTokenizer(line, ",");
 
-						if (!implicitProperty.equals("-"))
+						String itemName = "";
+
+						if (strokenizer.hasMoreTokens())
 						{
-							this.implicitAttributeMap.put(itemName, implicitProperty);
+							itemName = strokenizer.nextToken();
+							this.groupMap.put(itemName, typeName);
+							itemNames.add(itemName);
+						}
+
+						if (strokenizer.hasMoreTokens())
+						{
+							// implicit property
+							String implicitProperty = strokenizer.nextToken();
+
+							if (!implicitProperty.equals("-"))
+							{
+								this.implicitAttributeMap.put(itemName, implicitProperty);
+							}
+						}
+
+						if (strokenizer.hasMoreTokens())
+						{
+							// subtype
+							String subGroup = strokenizer.nextToken();
+							this.subGroupMap.put(itemName, typeName + subGroup);
 						}
 					}
 
-					if (strokenizer.hasMoreTokens())
-					{
-						// subtype
-						String subGroup = strokenizer.nextToken();
-						this.subGroupMap.put(itemName, typeName + subGroup);
-					}
+					this.groups.put(typeName, itemNames);
+					fileScanner.close();
+				}
+				catch (FileNotFoundException e)
+				{
+					e.printStackTrace();
 				}
 
-				this.groups.put(typeName, itemNames);
-				fileScanner.close();
 			}
 		}
 	}

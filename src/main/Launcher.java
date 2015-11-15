@@ -24,8 +24,8 @@ public class Launcher
 		JMenuBar menuBar = mainForm.initMenu();
 		mainForm.initPropertySettings();
 		frame.setJMenuBar(menuBar);
-		frame.setVisible(true);
 		new Thread(analyzer).start();
 		new Thread(new ClipBoarder()).start();
+		frame.setVisible(true);
 	}
 }
