@@ -52,8 +52,9 @@ public class MenuListenerImport implements ActionListener, ItemListener
 						property.setValue(itemProperties.getValue());
 					}
 				}
-
 			}
+
+			JOptionPane.showMessageDialog(this.mainFrame, "File merge in current RAM data");
 		}
 	}
 
